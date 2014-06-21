@@ -16,14 +16,10 @@ module Make (Digest: DIGEST) = struct
     {map = IntMap.empty; interleave_count}
 
   let hash_val digested entry_fn =
-    let conv c = Int64.of_int (int_of_char c) in
-    Int64.logor
-      (Int64.logor
-         (Int64.shift_left (conv digested.[entry_fn 3]) 24)
-         (Int64.shift_left (conv digested.[entry_fn 2]) 16))
-      (Int64.logor
-         (Int64.shift_left (conv digested.[entry_fn 1]) 8)
-         (conv digested.[entry_fn 0]))
+    let slc i sw =
+      Int64.shift_left (Int64.of_int (int_of_char digested.[entry_fn i])) sw
+    and (lor) = Int64.logor in
+    (slc 3 24) lor (slc 2 16) lor (slc 1 8) lor (slc 0 0)
 
   let hash s =
     hash_val (Digest.string s) (fun x -> x)
