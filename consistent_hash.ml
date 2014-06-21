@@ -25,6 +25,9 @@ module Make (Digest: DIGEST) = struct
          (Int64.shift_left (conv digested.[entry_fn 1]) 8)
          (conv digested.[entry_fn 0]))
 
+  let hash s =
+    hash_val (Digest.string s) (fun x -> x)
+
   let add ?(weight = 1) key value m =
     let factor = m.interleave_count * weight in
     let rec aux accum = function

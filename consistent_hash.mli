@@ -11,4 +11,5 @@ sig
   val add: ?weight:int -> string -> 'a -> 'a t -> 'a t
   val find: string -> 'a t -> 'a
   val iter: (int64 -> 'a -> unit) -> 'a t -> unit
+  val hash: string -> int64
 end
