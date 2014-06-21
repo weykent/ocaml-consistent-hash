@@ -10,6 +10,6 @@ sig
   val make: ?interleave_count:int -> unit -> 'a t
   val add: ?weight:int -> string -> 'a -> 'a t -> 'a t
   val find: string -> 'a t -> 'a
-  val iter: (int64 -> 'a -> unit) -> 'a t -> unit
+  val iter: (int64 -> string -> 'a -> unit) -> 'a t -> unit
   val hash: string -> int64
 end

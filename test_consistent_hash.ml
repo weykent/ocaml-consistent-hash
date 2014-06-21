@@ -10,8 +10,14 @@ let v1v2 =
 
 let count h =
   let i = ref 0 in
-  CH.iter (fun _ _ -> incr i) h;
+  CH.iter (fun _ _ _ -> incr i) h;
   !i
+
+
+let accumulate h =
+  let l = ref [] in
+  CH.iter (fun ki ks v -> l := (ki, ks, v) :: !l) h;
+  !l
 
 
 (*

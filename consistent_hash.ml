@@ -8,7 +8,7 @@ end
 
 module Make (Digest: DIGEST) = struct
   type +'a t = {
-    map: 'a IntMap.t;
+    map: (string * 'a) IntMap.t;
     interleave_count: int;
   }
 
@@ -40,7 +40,7 @@ module Make (Digest: DIGEST) = struct
             aux'
               (IntMap.add
                  (hash_val digested (fun x -> x + i * 4))
-                 value
+                 (key, value)
                  accum)
               (succ i)
         in
@@ -51,10 +51,12 @@ module Make (Digest: DIGEST) = struct
   let find key m =
     let l, data, r = IntMap.split (hash key) m.map in
     match data with
-    | Some x -> x
-    | None when IntMap.is_empty r -> snd (IntMap.min_binding l)
-    | None -> snd (IntMap.min_binding r)
+    | Some (_, x) -> x
+    | None when IntMap.is_empty r -> snd (snd (IntMap.min_binding l))
+    | None -> snd (snd (IntMap.min_binding r))
 
-  let iter f m = IntMap.iter f m.map
+  let iter f m =
+    let f' ki (ks, v) = f ki ks v in
+    IntMap.iter f' m.map
 
 end
