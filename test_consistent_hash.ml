@@ -66,6 +66,9 @@ let suite = "consistent hash suite" >::: [
     assert_equal (CH.find "0" v1v2) "value2");
   "test_between_two_and_one" >:: (fun () ->
     assert_equal (CH.find "18" v1v2) "value1");
+  "test_remove" >:: (fun () ->
+    let v = CH.remove "key1" v1v2 in
+    assert_equal (CH.find "18" v) "value2");
 ]
 
 

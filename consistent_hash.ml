@@ -48,6 +48,9 @@ module Make (Digest: DIGEST) = struct
     in
     {m with map = aux m.map 0}
 
+  let remove key m =
+    {m with map = IntMap.filter (fun _ (ks, _) -> ks <> key) m.map}
+
   let find key m =
     let l, data, r = IntMap.split (hash key) m.map in
     match data with
