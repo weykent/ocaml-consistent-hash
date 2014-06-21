@@ -1,9 +1,4 @@
-module Integer = struct
-  type t = int
-  let compare = compare
-end
-
-module IntMap = Map.Make (Integer)
+module IntMap = Map.Make (Int64)
 
 module type DIGEST =
 sig
@@ -21,10 +16,14 @@ module Make (Digest: DIGEST) = struct
     {map = IntMap.empty; interleave_count}
 
   let hash_val digested entry_fn =
-    ((int_of_char digested.[entry_fn 3]) lsl 24)
-    lor ((int_of_char digested.[entry_fn 2]) lsl 16)
-    lor ((int_of_char digested.[entry_fn 1]) lsl 8)
-    lor ((int_of_char digested.[entry_fn 0]))
+    let conv c = Int64.of_int (int_of_char c) in
+    Int64.logor
+      (Int64.logor
+         (Int64.shift_left (conv digested.[entry_fn 3]) 24)
+         (Int64.shift_left (conv digested.[entry_fn 2]) 16))
+      (Int64.logor
+         (Int64.shift_left (conv digested.[entry_fn 1]) 8)
+         (conv digested.[entry_fn 0]))
 
   let add ?(weight = 1) key value m =
     let factor = m.interleave_count * weight in
