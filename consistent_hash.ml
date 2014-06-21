@@ -49,9 +49,10 @@ module Make (Digest: DIGEST) = struct
     {m with map = aux m.map 0}
 
   let find key m =
-    let l, data, r = IntMap.split (hash_val (Digest.string key) (fun x -> x)) m.map in
+    let l, data, r = IntMap.split (hash key) m.map in
     match data with
     | Some x -> x
+    | None when IntMap.is_empty r -> snd (IntMap.min_binding l)
     | None -> snd (IntMap.min_binding r)
 
   let iter f m = IntMap.iter f m.map
