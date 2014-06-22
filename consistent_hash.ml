@@ -25,22 +25,19 @@ module Make (Digest: DIGEST) = struct
     hash_val (Digest.string s) (fun x -> x)
 
   let add ?(weight = 1) key value m =
-    let factor = m.interleave_count * weight in
+    let insert digested i map =
+      IntMap.add
+        (hash_val digested (fun x -> x + i * 4))
+        (key, value)
+        map
+    and factor = m.interleave_count * weight in
     let rec aux accum = function
       | x when x = factor -> accum
       | j ->
-        let digested = Digest.string (Printf.sprintf "%s-%d" key j) in
-        let rec aux' accum = function
-          | 3 -> accum
-          | i ->
-            aux'
-              (IntMap.add
-                 (hash_val digested (fun x -> x + i * 4))
-                 (key, value)
-                 accum)
-              (succ i)
-        in
-        aux (aux' accum 0) (succ j)
+        let f = Printf.sprintf "%s-%d" key j |> Digest.string |> insert in
+        aux
+          (accum |> f 0 |> f 1 |> f 2)
+          (succ j)
     in
     {m with map = aux m.map 0}
 
@@ -51,8 +48,8 @@ module Make (Digest: DIGEST) = struct
     let l, data, r = IntMap.split (hash key) m.map in
     match data with
     | Some (_, x) -> x
-    | None when IntMap.is_empty r -> snd (snd (IntMap.min_binding l))
-    | None -> snd (snd (IntMap.min_binding r))
+    | None when IntMap.is_empty r -> IntMap.min_binding l |> snd |> snd
+    | None -> IntMap.min_binding r |> snd |> snd
 
   let iter f m =
     let f' ki (ks, v) = f ki ks v in
